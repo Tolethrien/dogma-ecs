@@ -5,7 +5,7 @@ import DogmaWorld from "./world";
 //TODO: zarządzaj entity np by sie dalo usunac mu jakis tag konkretny i wszystkie jego komponenty musza to zaktualizwac
 type ManipulatedOnFrame = { added: Set<string>; removed: Set<string> };
 export default class EntityManager {
-  private static componentsManipulatedOnFrame: ManipulatedOnFrame = {
+  private static EntitiesManipulatedOnFrame: ManipulatedOnFrame = {
     added: new Set(),
     removed: new Set(),
   };
@@ -13,6 +13,18 @@ export default class EntityManager {
     added: new Set(),
     removed: new Set(),
   };
+  public static get getComponentsManipulatedOnFrame() {
+    return this.EntitiesManipulatedOnFrame;
+  }
+  public static get getSystemsManipulatedOnFrame() {
+    return this.systemsManipulatedOnFrame;
+  }
+  public static get getManipulatedDataFromLastFrame() {
+    return {
+      entities: this.EntitiesManipulatedOnFrame,
+      systems: this.systemsManipulatedOnFrame,
+    };
+  }
   public static tick(worldName?: string) {
     const world = worldName ? Dogma.getWorld(worldName) : Dogma.getActiveWorld;
     EngineDebugger.AssertValue(
@@ -20,10 +32,12 @@ export default class EntityManager {
       `Dogma Error: \nTrying to "dispatch tick" non-existent world.\nWorld Name: "${worldName}"`
     );
     //TODO: generuj raport co nie usunelo sie bo nie bylo, co sie nie moglo dodac itp
+    this.clearManipulatedList();
     this.onTick(world);
   }
 
   public static tickAll() {
+    this.clearManipulatedList();
     Dogma.getAllWorlds.forEach((world) => {
       this.onTick(world);
     });
@@ -34,8 +48,13 @@ export default class EntityManager {
     this.removeSystemsOnTick(world);
     this.addSystemsOnTick(world);
   }
-  private static addSystemsOnTick(world: DogmaWorld) {
+  private static clearManipulatedList() {
+    this.EntitiesManipulatedOnFrame.added.clear();
+    this.EntitiesManipulatedOnFrame.removed.clear();
     this.systemsManipulatedOnFrame.added.clear();
+    this.systemsManipulatedOnFrame.removed.clear();
+  }
+  private static addSystemsOnTick(world: DogmaWorld) {
     world.getSystemsToDispatch.forEach((systemName) => {
       const key: keyof typeof DOGMA_SYSTEM_LIST =
         systemName ?? "AbstractSystem";
@@ -44,6 +63,7 @@ export default class EntityManager {
       system.onStart();
       this.systemsManipulatedOnFrame.added.add(systemName);
     });
+    world.getSystemsToDispatch.clear();
   }
   private static removeSystemsOnTick(world: DogmaWorld) {
     const systemsList = world.getSystems;
@@ -59,26 +79,25 @@ export default class EntityManager {
         );
       }
     });
+    world.getSystemsToRemove.clear();
   }
 
   private static addEntitiesOnTick(world: DogmaWorld) {
-    this.componentsManipulatedOnFrame.added.clear();
     const dispatchList = world.getComponentToDispatch;
     const components = world.getAllComponentsList;
     dispatchList.forEach((component) => {
       const componentList = components.get(component.constructor.name)!;
       componentList.set(component.entityID, component);
-      this.componentsManipulatedOnFrame.added.add(component.entityID);
+      this.EntitiesManipulatedOnFrame.added.add(component.entityID);
     });
     dispatchList.clear();
   }
   private static removeEntitiesOnTick(world: DogmaWorld) {
-    this.componentsManipulatedOnFrame.removed.clear();
     const removalList = world.getComponentToRemove;
     const components = world.getAllComponentsList;
     removalList.forEach((entityID) => {
       components.forEach((componentList) => componentList.delete(entityID));
-      this.componentsManipulatedOnFrame.removed.add(entityID);
+      this.EntitiesManipulatedOnFrame.removed.add(entityID);
     });
     removalList.clear();
   }
