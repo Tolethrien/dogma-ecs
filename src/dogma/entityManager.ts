@@ -1,4 +1,5 @@
 import EngineDebugger from "../utils/debbuger";
+import DogmaComponent from "./component";
 import Dogma, { DOGMA_SYSTEM_LIST } from "./dogma";
 import DogmaEntity from "./entity";
 import DogmaWorld from "./world";
@@ -34,6 +35,8 @@ export default class EntityManager {
     //TODO: generuj raport co nie usunelo sie bo nie bylo, co sie nie moglo dodac itp
     this.clearManipulatedList();
     this.onTick(world);
+    //TODO: potencjalnie tutaj po prostu onUpdate i tick robi wszystko?
+    //Czy tick w takim razie nie powienien byc czescia glownej dogmy a nie managera?
   }
 
   public static tickAll() {
@@ -132,5 +135,37 @@ export default class EntityManager {
     );
     world.getComponentToRemove.add(entityID);
   }
-  public static moveEntityToWorld() {}
+  public static moveEntityById(
+    id: DogmaEntity["id"],
+    fromWorld: string,
+    toWorld: string
+  ) {
+    const entityStruct = new Set<DogmaComponent>();
+    const worldAComponents = Dogma.getWorld(fromWorld)?.getAllComponentsList;
+    const worldBComponents = Dogma.getWorld(toWorld)?.getAllComponentsList;
+    if (worldAComponents === undefined || worldBComponents === undefined) {
+      const nonExist = worldAComponents === undefined ? fromWorld : toWorld;
+      EngineDebugger.showWarn(
+        `Dogma Warn: \nTrying to move entity with id "${id}", from world: "${fromWorld}" to world: "${toWorld}".\nCannot find world with name: "${nonExist}"`
+      );
+      return;
+    }
+    worldAComponents.forEach((list) => {
+      const component = list.get(id);
+      if (!component) return;
+      entityStruct.add(component);
+      list.delete(id);
+    });
+    if (entityStruct.size === 0) {
+      EngineDebugger.showWarn(
+        `Dogma Warn: \nTrying to move entity with id "${id}", from world: "${fromWorld}" to world: "${toWorld}".\nCannot find entity with given ID in world: "${fromWorld}"`
+      );
+      return;
+    }
+    entityStruct.forEach((component) => {
+      worldBComponents.get(component.constructor.name)?.set(id, component);
+    });
+  }
+  public static moveEntityToWorldByMarker() {}
+  public static moveEntitiesGroupToWorldByTag() {}
 }

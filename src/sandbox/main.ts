@@ -10,16 +10,16 @@ const player = new Player();
 const playerTwo = new Player();
 min.addSystem("Renderer");
 EntityManager.addEntity(playerTwo);
-EntityManager.addEntityToWorld(player, "main");
+// EntityManager.addEntityToWorld(player, "main");
 EntityManager.tickAll();
-console.log(EntityManager.getManipulatedDataFromLastFrame);
+// console.log(EntityManager.getManipulatedDataFromLastFrame);
 
-min.removeSystem("Renderer");
-EntityManager.removeEntity(playerTwo.getID);
-EntityManager.removeEntityInWorld(player.getID, "main");
-EntityManager.tickAll();
-console.log(EntityManager.getManipulatedDataFromLastFrame);
-
+// min.removeSystem("Renderer");
+// EntityManager.removeEntity(playerTwo.getID);
+// EntityManager.removeEntityInWorld(player.getID, "main");
+// EntityManager.tickAll();
+// console.log(EntityManager.getManipulatedDataFromLastFrame);
+EntityManager.moveEntityById(playerTwo.getID, "min", "main");
 console.log(Dogma.getAllWorlds);
 
 // console.log(Dogma.getActiveWorld.getComponentToDispatch);

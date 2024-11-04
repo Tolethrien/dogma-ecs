@@ -9,3 +9,7 @@ export const avalibleComponents = {
 export const avalibleSystems = {
   Renderer,
 };
+// export const DogmaConfig = {
+//   components: [Transform, Camera],
+//   systems: [Renderer],
+// };

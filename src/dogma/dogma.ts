@@ -51,15 +51,15 @@ export default class Dogma {
     }
     this.worlds.delete(worldName);
   }
-
-  public static systemOnStart(worldName?: string) {
-    const world = worldName ? this.worlds.get(worldName) : this.activeWorld;
-    EngineDebugger.AssertValue(
-      world,
-      `Dogma Error: \nTrying to perform "SystemOnStart" on non-existent world.\nWorld Name: "${worldName}"`
-    );
-    world.getSystems.forEach((system) => system.onStart());
-  }
+  // Potencjalnie juz nie potrzebne bo onStart sie robi na ticku?
+  // public static systemOnStart(worldName?: string) {
+  //   const world = worldName ? this.worlds.get(worldName) : this.activeWorld;
+  //   EngineDebugger.AssertValue(
+  //     world,
+  //     `Dogma Error: \nTrying to perform "SystemOnStart" on non-existent world.\nWorld Name: "${worldName}"`
+  //   );
+  //   world.getSystems.forEach((system) => system.onStart());
+  // }
   public static systemOnUpdate(worldName?: string) {
     const world = worldName ? this.worlds.get(worldName) : this.activeWorld;
     EngineDebugger.AssertValue(
