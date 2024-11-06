@@ -21,8 +21,10 @@ export default class DogmaWorld {
   private componentsToRemove: Set<DogmaEntity["id"]>;
   private systemsToDispatch: Set<DogmaSystemsKeys>;
   private systemsToRemove: Set<DogmaSystemsKeys>;
+  private markers: Map<string, string>;
   constructor({ worldName }: Props) {
     this.worldName = worldName;
+    this.markers = new Map();
     this.componentsToDispatch = new Set();
     this.componentsToRemove = new Set();
     this.systemsToDispatch = new Set();
@@ -54,6 +56,9 @@ export default class DogmaWorld {
   }
   public get getSystems() {
     return this.systems;
+  }
+  public get getMarkers() {
+    return this.markers;
   }
 
   public getComponentsFrom(componentName: string) {

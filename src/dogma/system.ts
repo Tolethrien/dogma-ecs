@@ -1,24 +1,54 @@
-import EngineDebugger from "../utils/debbuger";
 import DogmaComponent from "./component";
-import Dogma, { DOGMA_COMPONENTS_LIST } from "./dogma";
-//TODO: Przydałoby sie by lista nie zezwalala na inny string nazwy bo obecnie moze byc Camera a moge w funkcji użyć Transform i nie ma bledu
-//TODO: uzyc stringu a nie faktycznej klasy jako T dzieki czemu nie trzeba bedzie ich importowac w systemach?
-export type GetComponentsList<T> = Map<string, T>;
-export type GetComponent<T> = T | undefined;
+import { DOGMA_COMPONENTS_LIST } from "./dogma";
+import DogmaWorld from "./world";
+
 type OmitedComponent = keyof Omit<
   typeof DOGMA_COMPONENTS_LIST,
   "AbstractComponent"
 >;
+
+type SystemComponent<T extends OmitedComponent> =
+  (typeof DOGMA_COMPONENTS_LIST)[T] extends new (...args: any[]) => infer R
+    ? R
+    : never;
+type SystemComponentList<T extends OmitedComponent> = Map<
+  string,
+  SystemComponent<T>
+>;
+
+type ReturnFromMarker = { marker: string; tags?: never };
+type ReturnFromTags = { tags: string[]; marker?: never };
+
+type FilterReturnType<
+  T extends OmitedComponent,
+  O extends ReturnFromMarker | ReturnFromTags
+> = O extends ReturnFromMarker
+  ? SystemComponent<T> | undefined
+  : SystemComponentList<T>;
+
 export default abstract class DogmaSystem {
   private isActive: boolean;
+  private isSelfDestroy: boolean;
+  private world: DogmaWorld | undefined;
   constructor() {
     this.isActive = true;
+    this.isSelfDestroy = false;
+    this.world = undefined;
   }
   public get getIsActive() {
     return this.isActive;
   }
+  public get getIsSelfDestroy() {
+    return this.isSelfDestroy;
+  }
   public set setIsActive(bool: boolean) {
     this.isActive = bool;
+  }
+  /**
+   * DO NOT USE! This is set on system creation automatically
+   */
+  public attatchWorld(world: DogmaWorld) {
+    this.world = world;
   }
   onUpdate() {
     //override
@@ -29,40 +59,43 @@ export default abstract class DogmaSystem {
   onDestroy() {
     //override
   }
-  getComponentsList<T = DogmaComponent>(component: OmitedComponent) {
-    return Dogma.getActiveWorld.getComponentsFrom(component) as T;
+
+  getComponentsList<T extends OmitedComponent>(component: T) {
+    return this.world!.getComponentsFrom(component) as SystemComponentList<T>;
   }
-  getComponentsByTag<T = DogmaComponent>(
-    component: OmitedComponent,
-    tag: string
-  ) {
-    const list = new Map<string, T>();
-    const components = Dogma.getActiveWorld.getComponentsFrom(component);
-    components.forEach(
-      (component) =>
-        component.entityTags.has(tag) &&
-        list.set(component.entityID, component as T)
-    );
-    return list;
+  getComponentsListWith<
+    T extends OmitedComponent,
+    O extends ReturnFromMarker | ReturnFromTags
+  >(component: T, options: O): FilterReturnType<T, O> {
+    const list = this.world!.getComponentsFrom(component);
+
+    if ("marker" in options) {
+      for (const component of list.values()) {
+        if (component.entityMarker === options.marker) {
+          return component as FilterReturnType<T, O>;
+        }
+      }
+    } else if ("tags" in options) {
+      const filteredList: Map<string, DogmaComponent> = new Map();
+      //TODO: zrobic by loopowalo przez wszystkie tagi a nie uzywalo 0
+      list.forEach((entity) => {
+        if (entity.entityTags.has(options.tags[0])) {
+          filteredList.set(entity.entityID, entity);
+        }
+      });
+      return filteredList as FilterReturnType<T, O>;
+    }
+    return undefined as FilterReturnType<T, O>;
   }
 
-  getComponentByMarker<T = DogmaComponent>(
-    component: OmitedComponent,
-    marker: string
-  ) {
-    const components = Dogma.getActiveWorld.getComponentsFrom(component);
-    for (const component of components.values()) {
-      if (component.entityMarker === marker) {
-        return component as T;
-      }
-    }
-    EngineDebugger.showWarn(
-      `Dogma Warn:\nTrying to get component "${component}" by marker: "${marker}" in system "${this.constructor.name}" but there is no such component\nFunction will return undefined, make sure this is intentional`
-    );
+  /**
+   * WARINING! this function can be used ONLY in onStart(), will not delete self otherwise!
+   */
+  selfDestroy() {
+    this.isSelfDestroy = true;
   }
-  // getComponentsByFilter(){}
-  // getComponentsByTagsGroup(){}
 }
+//TODO: group search - filtruj komponenty ktore maja inne komponenty przy okazji
 export class AbstractSystem extends DogmaSystem {
   constructor() {
     super();

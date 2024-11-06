@@ -1,25 +1,16 @@
-import DogmaSystem, {
-  GetComponentsList,
-  GetComponent,
-} from "../../dogma/system";
-import Camera from "../components/camera";
-import Transform from "../components/transform";
+import DogmaSystem from "../../dogma/system";
 export default class Renderer extends DogmaSystem {
-  list: GetComponentsList<Camera>;
-  filtered: GetComponentsList<Transform>;
-  marked: GetComponent<Transform>;
-
   constructor() {
     super();
-    this.list = this.getComponentsList("Transform");
-    this.filtered = this.getComponentsByTag("Transform", "player");
-    this.marked = this.getComponentByMarker("Transform", "player");
   }
   onStart(): void {
     console.log("startuje");
   }
   onUpdate() {
+    const a = this.getComponentsList("Transform");
+    const b = this.getComponentsListWith("Transform", { marker: "" });
     console.log("zapetlam");
+    console.log(b);
   }
   onDestroy(): void {
     console.log("wybucham");

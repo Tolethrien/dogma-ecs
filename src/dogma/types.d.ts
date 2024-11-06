@@ -5,3 +5,4 @@ export type DogmaSystemsKeys = keyof Omit<
   "AbstractSystem"
 >;
 export type DogmaSystems = keyof typeof DOGMA_SYSTEM_LIST;
+export type EntityID = string;
