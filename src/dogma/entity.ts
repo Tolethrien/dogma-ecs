@@ -3,12 +3,12 @@ import { DOGMA_COMPONENTS_LIST } from "./dogma";
 export default abstract class DogmaEntity {
   private id: string;
   private tags: Set<string>;
-  private marker: string;
+  private marker: string[];
   private components: Map<keyof typeof DOGMA_COMPONENTS_LIST, DogmaComponent>;
   constructor() {
     this.id = crypto.randomUUID();
     this.tags = new Set();
-    this.marker = "";
+    this.marker = [];
     this.components = new Map();
   }
   public get getID() {
@@ -21,7 +21,7 @@ export default abstract class DogmaEntity {
     return this.components;
   }
   public get getMarker() {
-    return this.marker;
+    return this.marker[0];
   }
   addComponent<
     T extends keyof Omit<typeof DOGMA_COMPONENTS_LIST, "AbstractComponent">
@@ -44,6 +44,6 @@ export default abstract class DogmaEntity {
     this.tags.add(tag);
   }
   public setMarker(marker: string) {
-    this.marker = marker;
+    this.marker[0] = marker;
   }
 }

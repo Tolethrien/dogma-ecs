@@ -7,10 +7,15 @@ export default class Renderer extends DogmaSystem {
     console.log("startuje");
   }
   onUpdate() {
-    const a = this.getComponentsList("Transform");
-    const b = this.getComponentsListWith("Transform", { marker: "" });
     console.log("zapetlam");
-    console.log(b);
+    const a = this.getComponentsList("Transform");
+    const b = this.getComponentWithMarker("Camera", "player");
+    const c = this.getComponentsListWith("Transform", {
+      // matchAnyTag: ["seo", "player"],
+      // components: ["Camera", "Render"],
+      // matchAllTags: ["seo", "player"],
+    });
+    console.log("finalna lista: ", c);
   }
   onDestroy(): void {
     console.log("wybucham");

@@ -75,15 +75,7 @@ export default class Dogma {
     }
     this.worlds.delete(worldName);
   }
-  // Potencjalnie juz nie potrzebne bo onStart sie robi na ticku?
-  // public static systemOnStart(worldName?: string) {
-  //   const world = worldName ? this.worlds.get(worldName) : this.activeWorld;
-  //   EngineDebugger.AssertValue(
-  //     world,
-  //     `Dogma Error: \nTrying to perform "SystemOnStart" on non-existent world.\nWorld Name: "${worldName}"`
-  //   );
-  //   world.getSystems.forEach((system) => system.onStart());
-  // }
+
   public static systemOnUpdate(worldName?: string) {
     const world = worldName ? this.worlds.get(worldName) : this.activeWorld;
     EngineDebugger.AssertValue(
@@ -101,8 +93,6 @@ export default class Dogma {
     //TODO: generuj raport co nie usunelo sie bo nie bylo, co sie nie moglo dodac itp
     this.clearManipulatedList();
     this.onTick(world);
-    //TODO: potencjalnie tutaj po prostu onUpdate i tick robi wszystko?
-    //Czy tick w takim razie nie powienien byc czescia glownej dogmy a nie managera?
   }
 
   public static tickAll() {
@@ -116,6 +106,7 @@ export default class Dogma {
     this.addEntitiesOnTick(world);
     this.removeSystemsOnTick(world);
     this.addSystemsOnTick(world);
+    this.systemOnUpdate();
   }
   private static clearManipulatedList() {
     this.EntitiesManipulatedOnFrame.added.clear();
@@ -128,9 +119,9 @@ export default class Dogma {
       const key: keyof typeof DOGMA_SYSTEM_LIST =
         systemName ?? "AbstractSystem";
       const system = new DOGMA_SYSTEM_LIST[key]();
-      system.attatchWorld(world);
+      system.atCreateAttachWorld = world;
       system.onStart();
-      if (!system.getIsSelfDestroy) world.getSystems.set(systemName, system);
+      world.getSystems.set(systemName, system);
       this.systemsManipulatedOnFrame.added.add(systemName);
     });
     world.getSystemsToDispatch.clear();
