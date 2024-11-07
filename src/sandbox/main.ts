@@ -3,30 +3,18 @@ import EntityManager from "../dogma/entityManager";
 import Player from "./entities/player";
 import "../style.css";
 import PlayerTwo from "./entities/playerTwo";
-// const main = Dogma.createWorld("main");
 const min = Dogma.createWorld("min");
-// console.log(Dogma.getActiveWorld.getComponentToRemove);
-// console.log(Dogma.getActiveWorld.getAllComponentsList);
+const main = Dogma.createWorld("main");
 const player = new PlayerTwo();
 const playerTwo = new Player();
 min.addSystem("Renderer");
 EntityManager.addEntity(playerTwo);
 EntityManager.addEntity(player);
-// EntityManager.addEntityToWorld(player, "main");
 Dogma.tickAll();
-EntityManager.addEnityTag(player.getID, "min", "nigga");
-// Dogma.tickAll();
-// console.log(EntityManager.getManipulatedDataFromLastFrame);
-
+const wrap = EntityManager.wrapEntity(player.getID)!;
+// EntityManager.removeEntity(player.getID);
 min.removeSystem("Renderer");
-// Dogma.tickAll();
-
-// EntityManager.removeEntity(playerTwo.getID);
-// EntityManager.removeEntityInWorld(player.getID, "main");
-// EntityManager.tickAll();
-// console.log(EntityManager.getManipulatedDataFromLastFrame);
-// EntityManager.moveEntityById(playerTwo.getID, "min", "main");
+Dogma.tickAll();
+EntityManager.addEntityToWorld(wrap, "min");
+Dogma.tickAll();
 console.log(Dogma.getAllWorlds);
-
-// console.log(Dogma.getActiveWorld.getComponentToDispatch);
-// console.log(Dogma.getActiveWorld.getAllComponentsList);

@@ -140,6 +140,7 @@ export default class Dogma {
       const componentList = components.get(component.constructor.name)!;
       componentList.set(component.entityID, component);
       this.EntitiesManipulatedOnFrame.added.add(component.entityID);
+      world.getEntitiesInWorld.add(component.entityID);
     });
     dispatchList.clear();
   }
@@ -149,6 +150,7 @@ export default class Dogma {
     removalList.forEach((entityID) => {
       components.forEach((componentList) => componentList.delete(entityID));
       this.EntitiesManipulatedOnFrame.removed.add(entityID);
+      world.getEntitiesInWorld.delete(entityID);
     });
     removalList.clear();
   }

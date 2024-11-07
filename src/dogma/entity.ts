@@ -1,14 +1,12 @@
 import DogmaComponent from "./component";
 import DOGMA_CONFIG from "../sandbox/dogma-config";
+import { DogmaComponentsKeys } from "./types";
 
 export default abstract class DogmaEntity {
   private id: string;
   private tags: Set<string>;
   private marker: string[];
-  private components: Map<
-    keyof typeof DOGMA_CONFIG.DOGMA_COMPONENTS_LIST,
-    DogmaComponent
-  >;
+  private components: Map<DogmaComponentsKeys, DogmaComponent>;
   constructor() {
     this.id = crypto.randomUUID();
     this.tags = new Set();
@@ -44,7 +42,7 @@ export default abstract class DogmaEntity {
         entityTags: this.tags,
         entityMarker: this.marker,
       },
-      //@ts-ignore
+      // @ts-ignore
       props
     );
     this.components.set(componentName, component);

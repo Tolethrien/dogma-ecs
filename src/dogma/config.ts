@@ -1,6 +1,10 @@
 import DogmaSystem from "./system";
 import DogmaComponent, { DogmaComponentProps } from "./component";
 
+type ConfigReturn<T, O> = {
+  DOGMA_COMPONENTS_LIST: T & { AbstractComponent: typeof AbstractComponent };
+  DOGMA_SYSTEM_LIST: O & { AbstractSystem: typeof AbstractSystem };
+};
 interface Config<T, O> {
   components: T;
   systems: O;
@@ -8,18 +12,16 @@ interface Config<T, O> {
 export default function config<
   T extends Record<string, unknown>,
   O extends Record<string, unknown>
->({ components, systems }: Config<T, O>) {
-  const componentList = {
-    AbstractComponent,
-    ...components,
-  } as T & { AbstractComponent: typeof AbstractComponent };
-  const systemList = {
-    AbstractSystem,
-    ...systems,
-  } as O & { AbstractSystem: typeof AbstractSystem };
+>({ components, systems }: Config<T, O>): ConfigReturn<T, O> {
   return {
-    DOGMA_COMPONENTS_LIST: componentList,
-    DOGMA_SYSTEM_LIST: systemList,
+    DOGMA_COMPONENTS_LIST: {
+      AbstractComponent,
+      ...components,
+    },
+    DOGMA_SYSTEM_LIST: {
+      AbstractSystem,
+      ...systems,
+    },
   };
 }
 

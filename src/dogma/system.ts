@@ -115,6 +115,7 @@ export default abstract class DogmaSystem {
         });
       });
     }
+    //TODO: NOTcomponents
     return filteredList as SystemComponentList<T>;
   }
 }

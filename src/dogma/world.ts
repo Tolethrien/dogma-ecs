@@ -13,6 +13,7 @@ export default class DogmaWorld {
   private components: Map<string, Map<string, DogmaComponent>>;
   private systems: Map<DogmaSystemsKeys, DogmaSystem>;
   private worldName: string;
+  private entitiesInWorld: Set<DogmaEntity["id"]>;
   //OPTIMA: sprawdz czy lista map na styl componentow bedzie szybsza bo nie musi ciagle zmieniac
   //referencji do listy a jest posortowana komponentami
 
@@ -26,6 +27,7 @@ export default class DogmaWorld {
     this.componentsToRemove = new Set();
     this.systemsToDispatch = new Set();
     this.systemsToRemove = new Set();
+    this.entitiesInWorld = new Set();
     this.components = new Map();
     this.systems = new Map<DogmaSystemsKeys, DogmaSystem>();
     Object.keys(DOGMA_CONFIG.DOGMA_COMPONENTS_LIST).forEach((component) => {
@@ -38,6 +40,9 @@ export default class DogmaWorld {
   }
   public get getName() {
     return this.worldName;
+  }
+  public get getEntitiesInWorld() {
+    return this.entitiesInWorld;
   }
   public get getComponentToDispatch() {
     return this.componentsToDispatch;

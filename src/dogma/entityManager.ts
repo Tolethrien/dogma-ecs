@@ -2,8 +2,15 @@ import EngineDebugger from "../utils/debbuger";
 import DogmaComponent from "./component";
 import Dogma from "./dogma";
 import DogmaEntity from "./entity";
+import { DogmaComponentsKeys } from "./types";
+interface EntityWrapStruct {
+  id: string;
+  tags: Set<string>;
+  marker: string[];
+  getComponents: Map<DogmaComponentsKeys, DogmaComponent>;
+}
 export default class EntityManager {
-  public static addEntity(entity: DogmaEntity) {
+  public static addEntity(entity: DogmaEntity | EntityWrapStruct) {
     const list = Dogma.getActiveWorld.getComponentToDispatch;
     entity.getComponents.forEach((component) => {
       list.add(component);
@@ -12,7 +19,10 @@ export default class EntityManager {
   public static removeEntity(entityID: DogmaEntity["id"]) {
     Dogma.getActiveWorld.getComponentToRemove.add(entityID);
   }
-  public static addEntityToWorld(entity: DogmaEntity, worldName: string) {
+  public static addEntityToWorld(
+    entity: DogmaEntity | EntityWrapStruct,
+    worldName: string
+  ) {
     const world = Dogma.getWorld(worldName);
     EngineDebugger.AssertValue(
       world,
@@ -66,62 +76,112 @@ export default class EntityManager {
     });
   }
   //TODO
-  public static addEnityTag(entityID: string, worldName: string, tag: string) {
-    const entity = this.findAnyComponent(entityID, worldName);
-    if (!entity) {
+  public static addEnityTag(entityID: string, tag: string) {
+    const worldName = this.getWorldName(entityID);
+    const entityData = this.getEntityData(entityID, worldName);
+    if (!entityData) {
       EngineDebugger.showWarn(
         `Dogma Warn: \nTrying to add tag: "${tag}" to entity with id "${entityID}" in world "${worldName}". There is no such entity!`
       );
       return;
     }
-    entity.entityTags.add(tag);
+    entityData.entityTags.add(tag);
   }
-  public static removeEnityTag(
-    entityID: string,
-    worldName: string,
-    tag: string
-  ) {
-    const entity = this.findAnyComponent(entityID, worldName);
-    if (!entity) {
+  public static removeEnityTag(entityID: string, tag: string) {
+    const worldName = this.getWorldName(entityID);
+    const entityData = this.getEntityData(entityID, worldName);
+
+    if (!entityData) {
       EngineDebugger.showWarn(
         `Dogma Warn: \nTrying to remove tag: "${tag}" from entity with id "${entityID}" in world "${worldName}". There is no such entity!`
       );
       return;
     }
-    entity.entityTags.delete(tag);
+    entityData.entityTags.delete(tag);
   }
-  public static setEnityMarker(
-    entityID: string,
-    worldName: string,
-    marker: string
-  ) {
-    const entity = this.findAnyComponent(entityID, worldName);
-    if (!entity) {
+
+  public static setEnityMarker(entityID: string, marker: string) {
+    const worldName = this.getWorldName(entityID);
+    const entityData = this.getEntityData(entityID, worldName);
+
+    if (!entityData) {
       EngineDebugger.showWarn(
         `Dogma Warn: \nTrying to set marker: "${marker}" in entity with id "${entityID}" in world "${worldName}". There is no such entity!`
       );
       return;
     }
-    entity.entityMarker[0] = marker;
+    entityData.entityMarker[0] = marker;
   }
-  public static removeEnityMarker(entityID: string, worldName: string) {
-    const entity = this.findAnyComponent(entityID, worldName);
-    if (!entity) {
+  public static removeEnityMarker(entityID: string) {
+    const worldName = this.getWorldName(entityID);
+    const entityData = this.getEntityData(entityID, worldName);
+
+    if (!entityData) {
       EngineDebugger.showWarn(
         `Dogma Warn: \nTrying to remove marker from entity with id "${entityID}" in world "${worldName}". There is no such entity!`
       );
       return;
     }
-    entity.entityMarker[0] = "";
+    entityData.entityMarker[0] = "";
   }
 
-  private static findAnyComponent(entityID: string, world: string) {
-    const componentsTypesList = Dogma.getWorld(world)?.getAllComponentsList;
-    if (componentsTypesList) {
-      for (const [, componentsList] of componentsTypesList) {
-        const find = componentsList.get(entityID);
-        if (find) return find;
+  private static getEntityData(
+    entityID: string,
+    worldName: string | undefined
+  ) {
+    if (!worldName) return;
+    let entityData: DogmaComponent | undefined = undefined;
+
+    const componentsTypesList = Dogma.getWorld(worldName)!.getAllComponentsList;
+    for (const components of componentsTypesList.values()) {
+      const find = components.get(entityID);
+      if (find) {
+        entityData = find;
+        return entityData;
       }
     }
+  }
+  /**
+   * This WILL remove entity from world!
+   */
+  public static wrapEntity(entityID: DogmaEntity["id"]) {
+    const entity: EntityWrapStruct = {
+      getComponents: new Map(),
+      id: entityID,
+      marker: [""],
+      tags: new Set(),
+    };
+    const worldName = this.getWorldName(entityID);
+    if (!worldName) {
+      EngineDebugger.showWarn(`Dogma Warn: \nTrying Wrap Entity.`);
+      return;
+    }
+    const components = Dogma.getWorld(worldName)!.getAllComponentsList;
+    components.forEach((list) => {
+      const component = list.get(entityID);
+      if (component)
+        entity.getComponents.set(
+          component.constructor.name as DogmaComponentsKeys,
+          component
+        );
+    });
+    for (const component of entity.getComponents.values()) {
+      entity.marker = component.entityMarker;
+      entity.tags = component.entityTags;
+      break;
+    }
+    this.removeEntityInWorld(entityID, worldName);
+    return entity;
+  }
+
+  private static getWorldName(entityID: DogmaEntity["id"]) {
+    for (const world of Dogma.getAllWorlds.values()) {
+      if (world.getEntitiesInWorld.has(entityID)) {
+        return world.getName;
+      }
+    }
+    EngineDebugger.showWarn(
+      `Dogma Warn: \nEntity with ID ${entityID} does not exist in any of the worlds.`
+    );
   }
 }

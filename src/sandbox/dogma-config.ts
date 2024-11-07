@@ -6,9 +6,9 @@ import Renderer from "./systems/renderer";
 
 export default config({
   components: {
-    Transform,
     Camera,
     Render,
+    Transform,
   },
   systems: { Renderer },
 });
