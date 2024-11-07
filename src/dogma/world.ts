@@ -1,37 +1,34 @@
 import EngineDebugger from "../utils/debbuger";
 import DogmaComponent from "./component";
-import { DOGMA_COMPONENTS_LIST, DOGMA_SYSTEM_LIST } from "./dogma";
 import DogmaEntity from "./entity";
 import DogmaSystem from "./system";
 import { DogmaSystemsKeys } from "./types";
+import DOGMA_CONFIG from "../sandbox/dogma-config";
 
 interface Props {
   worldName: string;
 }
 
 export default class DogmaWorld {
-  //TODO:zrobic bardziej poprawny typ niz string
   private components: Map<string, Map<string, DogmaComponent>>;
   private systems: Map<DogmaSystemsKeys, DogmaSystem>;
   private worldName: string;
-  //TODO: sprawdz czy lista map na styl componentow bedzie szybsza bo nie musi ciagle zmieniac
+  //OPTIMA: sprawdz czy lista map na styl componentow bedzie szybsza bo nie musi ciagle zmieniac
   //referencji do listy a jest posortowana komponentami
 
   private componentsToDispatch: Set<DogmaComponent>;
   private componentsToRemove: Set<DogmaEntity["id"]>;
   private systemsToDispatch: Set<DogmaSystemsKeys>;
   private systemsToRemove: Set<DogmaSystemsKeys>;
-  private markers: Map<string, string>;
   constructor({ worldName }: Props) {
     this.worldName = worldName;
-    this.markers = new Map();
     this.componentsToDispatch = new Set();
     this.componentsToRemove = new Set();
     this.systemsToDispatch = new Set();
     this.systemsToRemove = new Set();
     this.components = new Map();
     this.systems = new Map<DogmaSystemsKeys, DogmaSystem>();
-    Object.keys(DOGMA_COMPONENTS_LIST).forEach((component) => {
+    Object.keys(DOGMA_CONFIG.DOGMA_COMPONENTS_LIST).forEach((component) => {
       if (component !== "AbstractComponent")
         this.components.set(component, new Map());
     });
@@ -57,9 +54,6 @@ export default class DogmaWorld {
   public get getSystems() {
     return this.systems;
   }
-  public get getMarkers() {
-    return this.markers;
-  }
 
   public getComponentsFrom(componentName: string) {
     const comp = this.components.get(componentName);
@@ -74,7 +68,10 @@ export default class DogmaWorld {
     this.systemsToDispatch.add(systemName);
   }
   public removeSystem<
-    T extends keyof Omit<typeof DOGMA_SYSTEM_LIST, "AbstractSystem">
+    T extends keyof Omit<
+      typeof DOGMA_CONFIG.DOGMA_SYSTEM_LIST,
+      "AbstractSystem"
+    >
   >(systemName: T) {
     this.systemsToRemove.add(systemName);
   }

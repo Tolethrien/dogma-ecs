@@ -14,6 +14,7 @@ EntityManager.addEntity(playerTwo);
 EntityManager.addEntity(player);
 // EntityManager.addEntityToWorld(player, "main");
 Dogma.tickAll();
+EntityManager.addEnityTag(player.getID, "min", "nigga");
 // Dogma.tickAll();
 // console.log(EntityManager.getManipulatedDataFromLastFrame);
 

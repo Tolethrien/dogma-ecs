@@ -1,14 +1,11 @@
 import DogmaComponent from "./component";
-import { DOGMA_COMPONENTS_LIST } from "./dogma";
-import type {
-  DogmaComponents,
-  DogmaComponentsKeys,
-  DogmaSystemsKeys,
-} from "./types";
+import type { DogmaComponentsKeys, DogmaSystemsKeys } from "./types";
 import DogmaWorld from "./world";
-
+import DOGMA_CONFIG from "../sandbox/dogma-config";
 export type SystemComponent<T extends DogmaComponentsKeys> =
-  (typeof DOGMA_COMPONENTS_LIST)[T] extends new (...args: any[]) => infer R
+  (typeof DOGMA_CONFIG.DOGMA_COMPONENTS_LIST)[T] extends new (
+    ...args: any[]
+  ) => infer R
     ? R
     : never;
 
@@ -74,6 +71,14 @@ export default abstract class DogmaSystem {
       }
     }
   }
+  getComponentWithID<T extends DogmaComponentsKeys>(component: T, id: string) {
+    const list = this.world.getComponentsFrom(component);
+    for (const component of list.values()) {
+      if (component.entityID === id) {
+        return component as SystemComponent<T>;
+      }
+    }
+  }
   getComponentsList<T extends DogmaComponentsKeys>(component: T) {
     return this.world.getComponentsFrom(component) as SystemComponentList<T>;
   }
@@ -111,10 +116,5 @@ export default abstract class DogmaSystem {
       });
     }
     return filteredList as SystemComponentList<T>;
-  }
-}
-export class AbstractSystem extends DogmaSystem {
-  constructor() {
-    super();
   }
 }

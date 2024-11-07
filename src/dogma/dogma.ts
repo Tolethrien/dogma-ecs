@@ -1,17 +1,7 @@
 import EngineDebugger from "../utils/debbuger";
-import { AbstractComponent } from "./component";
-import { avalibleComponents, avalibleSystems } from "../sandbox/dogma.list";
-import { AbstractSystem } from "./system";
 import DogmaWorld from "./world";
-//TODO: cos z tym zrobic
-export const DOGMA_COMPONENTS_LIST = {
-  AbstractComponent,
-  ...avalibleComponents,
-};
-export const DOGMA_SYSTEM_LIST = {
-  AbstractSystem,
-  ...avalibleSystems,
-};
+import DOGMA_CONFIG from "../sandbox/dogma-config";
+
 type ManipulatedOnFrame = { added: Set<string>; removed: Set<string> };
 
 export default class Dogma {
@@ -116,9 +106,9 @@ export default class Dogma {
   }
   private static addSystemsOnTick(world: DogmaWorld) {
     world.getSystemsToDispatch.forEach((systemName) => {
-      const key: keyof typeof DOGMA_SYSTEM_LIST =
+      const key: keyof typeof DOGMA_CONFIG.DOGMA_SYSTEM_LIST =
         systemName ?? "AbstractSystem";
-      const system = new DOGMA_SYSTEM_LIST[key]();
+      const system = new DOGMA_CONFIG.DOGMA_SYSTEM_LIST[key]();
       system.atCreateAttachWorld = world;
       system.onStart();
       world.getSystems.set(systemName, system);

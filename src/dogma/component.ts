@@ -14,8 +14,3 @@ export default abstract class DogmaComponent {
     this.entityMarker = entityMarker;
   }
 }
-export class AbstractComponent extends DogmaComponent {
-  constructor({ entityID, entityTags, entityMarker }: Props) {
-    super({ entityID, entityTags, entityMarker });
-  }
-}

@@ -1,10 +1,14 @@
 import DogmaComponent from "./component";
-import { DOGMA_COMPONENTS_LIST } from "./dogma";
+import DOGMA_CONFIG from "../sandbox/dogma-config";
+
 export default abstract class DogmaEntity {
   private id: string;
   private tags: Set<string>;
   private marker: string[];
-  private components: Map<keyof typeof DOGMA_COMPONENTS_LIST, DogmaComponent>;
+  private components: Map<
+    keyof typeof DOGMA_CONFIG.DOGMA_COMPONENTS_LIST,
+    DogmaComponent
+  >;
   constructor() {
     this.id = crypto.randomUUID();
     this.tags = new Set();
@@ -24,12 +28,17 @@ export default abstract class DogmaEntity {
     return this.marker[0];
   }
   addComponent<
-    T extends keyof Omit<typeof DOGMA_COMPONENTS_LIST, "AbstractComponent">
+    T extends keyof Omit<
+      typeof DOGMA_CONFIG.DOGMA_COMPONENTS_LIST,
+      "AbstractComponent"
+    >
   >(
     componentName: T,
-    props?: ConstructorParameters<(typeof DOGMA_COMPONENTS_LIST)[T]>[1]
+    props?: ConstructorParameters<
+      (typeof DOGMA_CONFIG.DOGMA_COMPONENTS_LIST)[T]
+    >[1]
   ) {
-    const component = new DOGMA_COMPONENTS_LIST[componentName](
+    const component = new DOGMA_CONFIG.DOGMA_COMPONENTS_LIST[componentName](
       {
         entityID: this.id,
         entityTags: this.tags,

@@ -65,4 +65,63 @@ export default class EntityManager {
       worldBComponents.get(component.constructor.name)?.set(id, component);
     });
   }
+  //TODO
+  public static addEnityTag(entityID: string, worldName: string, tag: string) {
+    const entity = this.findAnyComponent(entityID, worldName);
+    if (!entity) {
+      EngineDebugger.showWarn(
+        `Dogma Warn: \nTrying to add tag: "${tag}" to entity with id "${entityID}" in world "${worldName}". There is no such entity!`
+      );
+      return;
+    }
+    entity.entityTags.add(tag);
+  }
+  public static removeEnityTag(
+    entityID: string,
+    worldName: string,
+    tag: string
+  ) {
+    const entity = this.findAnyComponent(entityID, worldName);
+    if (!entity) {
+      EngineDebugger.showWarn(
+        `Dogma Warn: \nTrying to remove tag: "${tag}" from entity with id "${entityID}" in world "${worldName}". There is no such entity!`
+      );
+      return;
+    }
+    entity.entityTags.delete(tag);
+  }
+  public static setEnityMarker(
+    entityID: string,
+    worldName: string,
+    marker: string
+  ) {
+    const entity = this.findAnyComponent(entityID, worldName);
+    if (!entity) {
+      EngineDebugger.showWarn(
+        `Dogma Warn: \nTrying to set marker: "${marker}" in entity with id "${entityID}" in world "${worldName}". There is no such entity!`
+      );
+      return;
+    }
+    entity.entityMarker[0] = marker;
+  }
+  public static removeEnityMarker(entityID: string, worldName: string) {
+    const entity = this.findAnyComponent(entityID, worldName);
+    if (!entity) {
+      EngineDebugger.showWarn(
+        `Dogma Warn: \nTrying to remove marker from entity with id "${entityID}" in world "${worldName}". There is no such entity!`
+      );
+      return;
+    }
+    entity.entityMarker[0] = "";
+  }
+
+  private static findAnyComponent(entityID: string, world: string) {
+    const componentsTypesList = Dogma.getWorld(world)?.getAllComponentsList;
+    if (componentsTypesList) {
+      for (const [, componentsList] of componentsTypesList) {
+        const find = componentsList.get(entityID);
+        if (find) return find;
+      }
+    }
+  }
 }
