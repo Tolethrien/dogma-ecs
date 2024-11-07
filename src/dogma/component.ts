@@ -1,11 +1,13 @@
+import DogmaEntity from "./entity";
+
 interface Props {
-  entityID: string;
+  entityID: DogmaEntity["id"];
   entityTags: Set<string>;
   entityMarker: string[];
 }
 export type DogmaComponentProps = Props;
 export default abstract class DogmaComponent {
-  entityID: string;
+  entityID: DogmaEntity["id"];
   entityTags: Set<string>;
   entityMarker: string[];
   constructor({ entityID, entityTags, entityMarker }: Props) {

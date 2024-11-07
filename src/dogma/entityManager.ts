@@ -2,12 +2,12 @@ import EngineDebugger from "../utils/debbuger";
 import DogmaComponent from "./component";
 import Dogma from "./dogma";
 import DogmaEntity from "./entity";
-import { DogmaComponentsKeys } from "./types";
+import { DogmaComponentsKeys, DogmaComponentsKeysInternal } from "./types";
 interface EntityWrapStruct {
   id: string;
   tags: Set<string>;
   marker: string[];
-  getComponents: Map<DogmaComponentsKeys, DogmaComponent>;
+  getComponents: Map<DogmaComponentsKeysInternal, DogmaComponent>;
 }
 export default class EntityManager {
   public static addEntity(entity: DogmaEntity | EntityWrapStruct) {
@@ -76,7 +76,7 @@ export default class EntityManager {
     });
   }
   //TODO
-  public static addEnityTag(entityID: string, tag: string) {
+  public static addEnityTag(entityID: DogmaEntity["id"], tag: string) {
     const worldName = this.getWorldName(entityID);
     const entityData = this.getEntityData(entityID, worldName);
     if (!entityData) {
@@ -87,7 +87,7 @@ export default class EntityManager {
     }
     entityData.entityTags.add(tag);
   }
-  public static removeEnityTag(entityID: string, tag: string) {
+  public static removeEnityTag(entityID: DogmaEntity["id"], tag: string) {
     const worldName = this.getWorldName(entityID);
     const entityData = this.getEntityData(entityID, worldName);
 
@@ -100,7 +100,7 @@ export default class EntityManager {
     entityData.entityTags.delete(tag);
   }
 
-  public static setEnityMarker(entityID: string, marker: string) {
+  public static setEnityMarker(entityID: DogmaEntity["id"], marker: string) {
     const worldName = this.getWorldName(entityID);
     const entityData = this.getEntityData(entityID, worldName);
 
@@ -112,7 +112,7 @@ export default class EntityManager {
     }
     entityData.entityMarker[0] = marker;
   }
-  public static removeEnityMarker(entityID: string) {
+  public static removeEnityMarker(entityID: DogmaEntity["id"]) {
     const worldName = this.getWorldName(entityID);
     const entityData = this.getEntityData(entityID, worldName);
 
@@ -126,7 +126,7 @@ export default class EntityManager {
   }
 
   private static getEntityData(
-    entityID: string,
+    entityID: DogmaEntity["id"],
     worldName: string | undefined
   ) {
     if (!worldName) return;

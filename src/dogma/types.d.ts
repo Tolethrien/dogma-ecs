@@ -8,5 +8,5 @@ export type DogmaComponentsKeys = keyof Omit<
   typeof DOGMA_CONFIG.DOGMA_COMPONENTS_LIST,
   "AbstractComponent"
 >;
-export type DogmaSystems = keyof typeof DOGMA_SYSTEM_LIST;
-export type DogmaComponents = keyof typeof DOGMA_COMPONENTS_LIST;
+export type DogmaSystemsKeysInternal = keyof typeof DOGMA_SYSTEM_LIST;
+export type DogmaComponentsKeysInternal = keyof typeof DOGMA_COMPONENTS_LIST;
