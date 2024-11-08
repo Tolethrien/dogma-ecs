@@ -72,7 +72,9 @@ export default class Dogma {
       world,
       `Dogma Error: \nTrying to perform "SystemOnUpdate" on non-existent world.\nWorld Name: "${worldName}"`
     );
-    world.getSystems.forEach((system) => system.onUpdate());
+    world.getSystems.forEach(
+      (system) => system.getIsActive && system.onUpdate()
+    );
   }
   public static tick(worldName?: string) {
     const world = worldName ? Dogma.getWorld(worldName) : Dogma.getActiveWorld;

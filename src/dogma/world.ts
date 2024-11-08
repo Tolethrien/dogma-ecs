@@ -80,4 +80,28 @@ export default class DogmaWorld {
   >(systemName: T) {
     this.systemsToRemove.add(systemName);
   }
+  public pauseSystem<
+    T extends keyof Omit<
+      typeof DOGMA_CONFIG.DOGMA_SYSTEM_LIST,
+      "AbstractSystem"
+    >
+  >(systemName: T) {
+    if (!this.getSystems.has(systemName))
+      EngineDebugger.showError(`
+      Dogma Error\n Trying to pause System "${systemName}" but there is no system ith this name in the world: "${this.worldName}"
+      `);
+    this.getSystems.get(systemName)!.setIsActive = false;
+  }
+  public playSystem<
+    T extends keyof Omit<
+      typeof DOGMA_CONFIG.DOGMA_SYSTEM_LIST,
+      "AbstractSystem"
+    >
+  >(systemName: T) {
+    if (!this.getSystems.has(systemName))
+      EngineDebugger.showError(`
+      Dogma Error\n Trying to unpouse System "${systemName}" but there is no system ith this name in the world: "${this.worldName}"
+      `);
+    this.getSystems.get(systemName)!.setIsActive = true;
+  }
 }
