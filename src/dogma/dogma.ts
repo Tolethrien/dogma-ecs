@@ -86,7 +86,14 @@ export default class Dogma {
     this.clearManipulatedList();
     this.onTick(world);
   }
-
+  public static setupTick() {
+    Dogma.getAllWorlds.forEach((world) => {
+      this.removeEntitiesOnTick(world);
+      this.addEntitiesOnTick(world);
+      this.removeSystemsOnTick(world);
+      this.addSystemsOnTick(world);
+    });
+  }
   public static tickAll() {
     this.clearManipulatedList();
     Dogma.getAllWorlds.forEach((world) => {
